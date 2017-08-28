@@ -1,0 +1,122 @@
+/** ###################################################################
+**     Filename  : Project2.C
+**     Project   : Project2
+**     Processor : MC9S08DZ60MLH
+**     Version   : Driver 01.11
+**     Compiler  : CodeWarrior HCS08 C Compiler
+**     Date/Time : 2016-4-2, 17:11
+**     Abstract  :
+**         Main module.
+**         This module contains user's application code.
+**     Settings  :
+**     Contents  :
+**         No public methods
+**
+** ###################################################################*/
+/* MODULE Project2 */
+
+
+/* Including needed modules to compile this module/procedure */
+#include "Cpu.h"
+#include "Events.h"
+#include "AS1.h"
+/* Include shared modules, which are used for whole project */
+#include "PE_Types.h"
+#include "PE_Error.h"
+#include "PE_Const.h"
+#include "IO_Map.h"
+
+/* User includes (#include below this line is not maintained by Processor Expert) */
+#include "lis3dh_driver.h"
+
+byte response;
+
+void main(void)
+{
+  /* Write your local variable definition here */
+  byte position=0, old_position=0;
+  AxesRaw_t data;  u8_t a;
+
+  /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
+  PE_low_level_init();
+  /*** End of Processor Expert internal initialization.                    ***/
+  
+  /* Write your code here */
+  /* For example: for(;;) { } */
+  setReg8Bits(PTFDD, 0x20);
+  setReg8Bits(PTDD, 0x20);       //CS=1
+  setReg8Bits(PTFDD, 0x80);
+  setReg8Bits(PTFD, 0x80);       //SDO/SA0=1
+  PTEDD_PTEDD4=1;
+  
+  //Inizialize MEMS Sensor
+  //set ODR (turn ON device)
+  response = LIS3DH_SetODR(LIS3DH_ODR_100Hz);
+  if(response==1){
+      AS1_SendChar('O');Cpu_Delay100US(10);
+      AS1_SendChar('D');Cpu_Delay100US(10);
+      AS1_SendChar('R');Cpu_Delay100US(10);
+      AS1_SendChar('o');Cpu_Delay100US(10);
+      AS1_SendChar('K');Cpu_Delay100US(10);
+      AS1_SendChar('\n');
+  }
+  //set PowerMode 
+  response = LIS3DH_SetMode(LIS3DH_NORMAL);
+  if(response==1){
+      AS1_SendChar('M');Cpu_Delay100US(10);
+      AS1_SendChar('O');Cpu_Delay100US(10);
+      AS1_SendChar('D');Cpu_Delay100US(10);
+      AS1_SendChar('o');Cpu_Delay100US(10);
+      AS1_SendChar('K');Cpu_Delay100US(10);
+      AS1_SendChar('\n');
+  }
+  //set Fullscale
+  response = LIS3DH_SetFullScale(LIS3DH_FULLSCALE_2);
+  if(response==1){
+      AS1_SendChar('S');Cpu_Delay100US(10);
+      AS1_SendChar('C');Cpu_Delay100US(10);
+      AS1_SendChar('L');Cpu_Delay100US(10);
+      AS1_SendChar('o');Cpu_Delay100US(10);
+      AS1_SendChar('K');Cpu_Delay100US(10);
+      AS1_SendChar('\n');
+  }
+  //set axis Enable
+  response = LIS3DH_SetAxis(LIS3DH_X_ENABLE | LIS3DH_Y_ENABLE | LIS3DH_Z_ENABLE);
+  if(response==1){
+      AS1_SendChar('A');Cpu_Delay100US(10);
+      AS1_SendChar('X');Cpu_Delay100US(10);
+      AS1_SendChar('I');Cpu_Delay100US(10);
+      AS1_SendChar('o');Cpu_Delay100US(10);
+      AS1_SendChar('K');Cpu_Delay100US(10);
+      AS1_SendChar('\n');
+  }
+
+  /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
+  /*** Processor Expert end of main routine. DON'T MODIFY THIS CODE!!! ***/
+  for(;;){
+  
+  response = LIS3DH_GetAccAxesRaw(&data);
+  if(response==1){
+    //print data values
+    AS1_SendChar(data.AXIS_X);Cpu_Delay100US(10);
+    AS1_SendChar(' ');Cpu_Delay100US(10);
+    AS1_SendChar(data.AXIS_Y);Cpu_Delay100US(10);
+    AS1_SendChar(' ');Cpu_Delay100US(10);
+    AS1_SendChar(data.AXIS_Z);Cpu_Delay100US(10);
+    AS1_SendChar('\n'); 
+  
+    old_position = position;
+  }
+   Cpu_Delay100US(1000);
+  }
+  /*** Processor Expert end of main routine. DON'T WRITE CODE BELOW!!! ***/
+} /*** End of main routine. DO NOT MODIFY THIS TEXT!!! ***/
+/* END Project2 */
+/*
+** ###################################################################
+**
+**     This file was created by Processor Expert 3.07 [04.34]
+**     for the Freescale HCS08 series of microcontrollers.
+**
+** ###################################################################
+*/
